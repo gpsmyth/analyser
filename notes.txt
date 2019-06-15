@@ -1,0 +1,53 @@
+In [20]: filters = [{'Name':'tag:Project', 'Values':['Python']}]                                                                                      
+
+In [21]: instances = ec2.instances.filter(Filters=filters)                                                                                            
+
+In [22]: list(instances)                                                                                                                              
+Out[22]: 
+[ec2.Instance(id='i-0e1fb1ce718160b26'),
+ ec2.Instance(id='i-0fc4961945e1292e3'),
+ ec2.Instance(id='i-09a2ce9e4131ed035')]
+
+
+Obtain an instance
+i = list(instances)[0]
+
+tags = { t['Key'] : t['Value'] for t in i.tags }                                                                                             
+
+In [37]: tags                                                                                                                                         
+Out[37]: {'Project': 'Python'}
+
+In [38]:  tags = {}                                                                                                                                   
+
+In [39]: for t in i.tags: 
+    ...:     tags[t['Key']] = t['Value'] 
+    ...:                             
+In [43]: tags                                                                                                                                         
+Out[43]: {'Project': 'Python'}
+
+However, when say a host has no tags, boto3 actually throws an exception
+From above obtaining i with no tags is:
+i = list(instances)[0] - instance id of 0e1fb1ce718160b26
+
+In [35]: tags = {}                                                                                                                                    
+
+In [36]: tags = { t['Key'] : t['Value'] for t in i.tags }                                                                                             
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+<ipython-input-36-11e166c031da> in <module>
+----> 1 tags = { t['Key'] : t['Value'] for t in i.tags }
+
+TypeError: 'NoneType' object is not iterable
+
+TO fix THIS SITUATION:
+In [37]: type(i.tags)                                                                                                                                 
+Out[37]: NoneType
+
+NoneType is returned.
+So we first set an empty list inside the dictionary and then dict sees empty list to return an empty {}
+In [38]: tags = { t['Key'] : t['Value'] for t in i.tags or [] }                                                                                       
+
+In [39]: tags                                                                                                                                         
+Out[39]: {}
+
+
