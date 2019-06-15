@@ -3,16 +3,8 @@
 import click
 import boto3
 
-@click.command()
-def cli():
-    """ Understanding click decorator """
-    click.echo("Hello World")
-
-@click.command()
-@click.option('--project', default=None, help="Only Instances for project (tag Project:<name>")
-@click.option('--name', default="analyser", help="Authorised API userid")
-def InstanceToGet(project, name):
-    """ Info about Instances """
+def filter_instances(project, name):
+    """ If Project Tag is provided, then filtering is applied """
     # session = boto3.Session(profile_name="analyser")
     try:
         session = boto3.Session(profile_name=name)
@@ -36,6 +28,26 @@ def InstanceToGet(project, name):
     else:
         instances = ec2.instances.all()
 
+    return instances
+
+
+@click.command()
+def cli():
+    """ Understanding click decorator """
+    click.echo("Hello World")
+
+@click.group()
+def instances():
+    """ Commands for instances """
+
+@instances.command('list')
+@click.option('--project', default=None, help="Only Instances for project (tag Project:<name>")
+@click.option('--name', default="analyser", help="Authorised API userid")
+def InstanceToGet(project, name):
+    """ Info about Instances using Project tag like --project=<name>"""
+    
+    instances = filter_instances(project, name)
+
     for i in instances:
         tags = { t['Key'] : t['Value'] for t in i.tags or [] }
         try:
@@ -57,6 +69,33 @@ def InstanceToGet(project, name):
     return
 
 
+@instances.command('stop')
+@click.option('--project', default=None, help="Only Instances for project (tag Project:<name>")
+@click.option('--name', default="analyser", help="Authorised API userid")
+def stop_instances(project, name):
+    """ Stop EC2 Instances using Project Tag """
+    instances = filter_instances(project, name)
+
+    for i in instances:
+        print("Stopping instance {0}".format(i.id))
+        i.stop()
+
+    return
+
+@instances.command('start')
+@click.option('--project', default=None, help="Only Instances for project (tag Project:<name>")
+@click.option('--name', default="analyser", help="Authorised API userid")
+def start_instances(project, name):
+    """ Start EC2 Instances using Project Tag """
+    instances = filter_instances(project, name)
+
+    for i in instances:
+        print("Starting instance {0}".format(i.id))
+        i.start()
+
+    return
+
+
 if __name__ == '__main__':
     # cli()
-    InstanceToGet()
+    instances()
