@@ -21,12 +21,15 @@ Creds obtained from IAM role of analyser also
 ## Running the program
 
 From the checkout directory  
-`pipenv run python boto3/ec2.py <command> --project=<PROJECT>`
+`pipenv run python boto3/ec2.py <command> --project=<PROJECT>` for class  
+`pipenv run python boto3/fn_ec2.py <command> --project=<PROJECT>` for functions  
+`pipenv run python boto3/fn_ec2.py <command>` for s3
 
-*command* is list, start, stop  
+*command* is list, start, stop  for ec2 *or*  
+*command* is list-buckets, list-bucket-objects [OPTIONS] BUCKET for s3  
 *project* is optional  
 *name* is optional  
-e.g. 
+e.g.
 ```
 pipenv run python boto3/fn_ec2.py stop --project=Python
 pipenv run python boto3/fn_ec2.py list
